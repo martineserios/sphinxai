@@ -88,7 +88,7 @@ db.json
 *.caffemodel
 *.prototxt
 SphinxAI-9005428e5618.json
-/src/headpose/pretrained/
+/src/headpose/pretrained/*
 
 # Mac OS-specific storage files
 .DS_Store

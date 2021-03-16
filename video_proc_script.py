@@ -6,6 +6,9 @@ from datetime import datetime
 import uuid
 import argparse
 
+from loguru import logger
+logger.add("log/log.log", rotation="1 week")
+
 #import from local libraries
 from gaze_tracking import GazeTracking
 
@@ -279,9 +282,15 @@ while True:
 
             yaw,pitch,roll = np.mean(np.vstack((res1,res2)),axis=0)
 
-        cv2.putText(frame, f'YAW: {str(round(yaw, 2))}', (90, 1600), cv2.FONT_HERSHEY_DUPLEX, 1.5, (100, 50, 150), 3)
-        cv2.putText(frame, f'PITCH: {str(round(pitch, 2))}', (90, 1650), cv2.FONT_HERSHEY_DUPLEX, 1.5, (100, 50, 150), 3)
-        cv2.putText(frame, f'ROLL: {str(round(roll, 2))}', (90, 1700), cv2.FONT_HERSHEY_DUPLEX, 1.5, (100, 50, 150), 3)
+        # cv2.putText(frame, f'YAW: {str(round(yaw, 2))}', (90, 1600), cv2.FONT_HERSHEY_DUPLEX, 1.5, (100, 50, 150), 3)
+        # cv2.putText(frame, f'PITCH: {str(round(pitch, 2))}', (90, 1650), cv2.FONT_HERSHEY_DUPLEX, 1.5, (100, 50, 150), 3)
+        # cv2.putText(frame, f'ROLL: {str(round(roll, 2))}', (90, 1700), cv2.FONT_HERSHEY_DUPLEX, 1.5, (100, 50, 150), 3)
+
+        cv2.putText(frame, f'YAW: {str(round(yaw, 2))}', (x1, y2+50), cv2.FONT_HERSHEY_DUPLEX, 1.5, (100, 50, 150), 3)
+        cv2.putText(frame, f'PITCH: {str(round(pitch, 2))}', (x1, y2+100), cv2.FONT_HERSHEY_DUPLEX, 1.5, (100, 50, 150), 3)
+        cv2.putText(frame, f'ROLL: {str(round(roll, 2))}', (x1, y2+150), cv2.FONT_HERSHEY_DUPLEX, 1.5, (100, 50, 150), 3)
+
+
 
         frame = draw_axis(frame,yaw,pitch,roll,tdx=(x2-x1)//2+x1,tdy=(y2-y1)//2+y1,size=50)
 

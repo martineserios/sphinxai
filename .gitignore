@@ -52,6 +52,7 @@ coverage.xml
 
 # Django stuff:
 *.log
+log/
 
 # Sphinx documentation
 docs/_build/
@@ -83,7 +84,11 @@ target/
 /media_tmp/
 db.json
 *.dat
+*.onnx
+*.caffemodel
+*.prototxt
 SphinxAI-9005428e5618.json
+/src/headpose/pretrained/
 
 # Mac OS-specific storage files
 .DS_Store

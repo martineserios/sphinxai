@@ -1,6 +1,6 @@
 # Thanks to:
-[read this article](https://github.com/omasaht/headpose-fsanet-pytorch)
-[read this article](https://github.com/antoinelame/GazeTracking/)
+[Antoine Lame](https://github.com/omasaht/headpose-fsanet-pytorch)
+[Omar Hassan](https://github.com/antoinelame/GazeTracking/)
 
 ## Licensing
 

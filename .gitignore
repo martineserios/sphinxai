@@ -84,11 +84,13 @@ target/
 /media_tmp/
 db.json
 *.dat
-*.onnx
-*.caffemodel
-*.prototxt
+src/headpose/pretrained/fsanet-var-iter-688590.onnx
+src/headpose/pretrained/fsanet-1x1-iter-688590.onnx
+src/headpose/pretrained/res10_300x300_ssd_iter_140000.caffemodel
+src/headpose/pretrained/resnet10_ssd.prototxt
+
+# gcp key
 SphinxAI-9005428e5618.json
-/src/headpose/pretrained/*
 
 # Mac OS-specific storage files
 .DS_Store

@@ -83,6 +83,7 @@ target/
 /media_tmp/
 db.json
 *.dat
+SphinxAI-9005428e5618.json
 
 # Mac OS-specific storage files
 .DS_Store

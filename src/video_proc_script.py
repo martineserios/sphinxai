@@ -100,6 +100,8 @@ test_events = namedtuple(
         'gaze_direction',
         'blink_freq',
         'blink_duration',
+        'left_pupil',
+        'right_pupil',
         'yaw',
         'pitch',
         'roll'
@@ -172,10 +174,11 @@ blinks_bag = deque()
 while True:
     # We get a new frame from the cap
     ret, frame = cap.read()
+    logger.info(ret)
 
     if ret:
         frame_counter += 1
-        print(frame_counter)
+        logger.info(f'Frame: {str(frame_counter)}')
 
         # We send this frame to GazeTracking to analyze it
         gaze.refresh(frame)
@@ -280,52 +283,59 @@ while True:
             res1 = sess.run(["output"], {"input": face_roi})[0]
             res2 = sess2.run(["output"], {"input": face_roi})[0]
 
+            logger.info(np.mean(np.vstack((res1,res2)),axis=0))
+
+
             yaw,pitch,roll = np.mean(np.vstack((res1,res2)),axis=0)
 
         # cv2.putText(frame, f'YAW: {str(round(yaw, 2))}', (90, 1600), cv2.FONT_HERSHEY_DUPLEX, 1.5, (100, 50, 150), 3)
         # cv2.putText(frame, f'PITCH: {str(round(pitch, 2))}', (90, 1650), cv2.FONT_HERSHEY_DUPLEX, 1.5, (100, 50, 150), 3)
         # cv2.putText(frame, f'ROLL: {str(round(roll, 2))}', (90, 1700), cv2.FONT_HERSHEY_DUPLEX, 1.5, (100, 50, 150), 3)
 
-        cv2.putText(frame, f'YAW: {str(round(yaw, 2))}', (x1, y2+50), cv2.FONT_HERSHEY_DUPLEX, 1.5, (100, 50, 150), 3)
-        cv2.putText(frame, f'PITCH: {str(round(pitch, 2))}', (x1, y2+100), cv2.FONT_HERSHEY_DUPLEX, 1.5, (100, 50, 150), 3)
-        cv2.putText(frame, f'ROLL: {str(round(roll, 2))}', (x1, y2+150), cv2.FONT_HERSHEY_DUPLEX, 1.5, (100, 50, 150), 3)
+            cv2.putText(frame, f'YAW: {str(round(yaw, 2))}', (x1, y2+50), cv2.FONT_HERSHEY_DUPLEX, 1.5, (100, 50, 150), 3)
+            cv2.putText(frame, f'PITCH: {str(round(pitch, 2))}', (x1, y2+100), cv2.FONT_HERSHEY_DUPLEX, 1.5, (100, 50, 150), 3)
+            cv2.putText(frame, f'ROLL: {str(round(roll, 2))}', (x1, y2+150), cv2.FONT_HERSHEY_DUPLEX, 1.5, (100, 50, 150), 3)
 
 
 
-        frame = draw_axis(frame,yaw,pitch,roll,tdx=(x2-x1)//2+x1,tdy=(y2-y1)//2+y1,size=50)
+            frame = draw_axis(frame,yaw,pitch,roll,tdx=(x2-x1)//2+x1,tdy=(y2-y1)//2+y1,size=50)
 
-        cv2.rectangle(frame,(x1,y1),(x2,y2),(0,255,0),2)
+            cv2.rectangle(frame,(x1,y1),(x2,y2),(0,255,0),2)
 
 
+                
+            logger.info(round(yaw, 2))
+            logger.info(round(pitch, 2))
+            logger.info(round(roll, 2))
             
-        print(round(yaw, 2), round(pitch, 2), round(roll, 2))
+            # place results on dicts
+            event = test_events(
+                test_id=test_id,
+                frame=frame_counter,
+                blink=blink, 
+                total_acc_blinks=blink_counter, 
+                ear_left=ear_left, 
+                ear_right=ear_right, 
+                gaze_direction=text,
+                blink_freq=bf,
+                blink_duration=blink_duration,
+                left_pupil=left_pupil,
+                right_pupil=right_pupil,
+                yaw=str(round(yaw, 2)),
+                pitch=str(round(pitch, 2)),
+                roll=str(round(roll, 2))
+            )
+            tmp_test_list.append(dict(event._asdict()))
 
-        # place results on dicts
-        event = test_events(
-            test_id=test_id,
-            frame=frame_counter,
-            blink=blink, 
-            total_acc_blinks=blink_counter, 
-            ear_left=ear_left, 
-            ear_right=ear_right, 
-            gaze_direction=text,
-            blink_freq=bf,
-            blink_duration=blink_duration,
-            yaw=str(round(yaw, 2)),
-            pitch=str(round(pitch, 2)),
-            roll=str(round(roll, 2))
-        )
-        tmp_test_list.append(dict(event._asdict()))
-
-        meta = test_meta(
-            test_id=test_id,
-            video_file_name=VIDEO_FILE_NAME,
-            datetime=dt_string,
-            fps=fps,
-            athlete=ATHLETE,
-            blink_threshold=BLINK_THRESHOLD,
-            bf_timestep=BF_TIMESTEP
-        )
+            meta = test_meta(
+                test_id=test_id,
+                video_file_name=VIDEO_FILE_NAME,
+                datetime=dt_string,
+                fps=fps,
+                athlete=ATHLETE,
+                blink_threshold=BLINK_THRESHOLD,
+                bf_timestep=BF_TIMESTEP
+            )
 
         # write frame on otput file
         if WRITE_STATS:
@@ -338,5 +348,5 @@ while True:
         break
     
 # load reuslts on db
-db_tests.insert_multiple(tmp_test_list)
-db_tests_meta.insert(dict(meta._asdict()))
+# db_tests.insert_multiple(tmp_test_list)
+# db_tests_meta.insert(dict(meta._asdict()))

@@ -32,7 +32,7 @@ ap.add_argument(
     "-bt", 
     "--blink-threshold",
     type=float,
-    default=4.5,
+    default=5.3,
     help="EAR limit value to consider a blink")
 ap.add_argument(
     "-bfts", 

@@ -152,7 +152,7 @@ size = (frame_width, frame_height)
 # Below VideoWriter object will create 
 # a frame of above defined The output
 if WRITE_STATS:
-    result = cv2.VideoWriter(f'media_out/{VIDEO_NAME}_out.mp4',  
+    result = cv2.VideoWriter(f'../media_out/{VIDEO_NAME}_out.mp4',  
                             fourcc, 
                             30, 
                             size) 

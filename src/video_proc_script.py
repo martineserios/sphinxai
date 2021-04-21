@@ -23,8 +23,6 @@ from pathlib import Path
 from headpose.src.face_detector import FaceDetector
 from headpose.src.utils import draw_axis
 
-
-
 # construct the argument parse and parse the arguments
 ap = argparse.ArgumentParser()
 ap.add_argument(
@@ -76,6 +74,19 @@ VIDEO_NAME = VIDEO_PATH.split('/')[-1].split('.')[0]
 VIDEO_FILE_NAME = VIDEO_PATH.split('/')[-1]
 # MEDIA_PATH = args['media_path']
 
+def HEAD_COMPENSATION_MAP(value):
+    value = abs(value)
+    category = ''
+
+    if value <= abs(4):
+        category = 'Pro'
+    elif (value > abs(4)) & (value <= abs(8)):
+        category = 'AR'
+    elif (value > abs(8)) & (value <= abs(16)):
+        category = 'Amateur'
+    elif (value > abs(16)):
+        category = 'Beginner'
+    return category
 
 # database connection
 db = TinyDB('db.json')
@@ -103,8 +114,11 @@ test_events = namedtuple(
         'left_pupil',
         'right_pupil',
         'yaw',
+        'yaw_categ',
         'pitch',
-        'roll'
+        'pitch_categ',
+        'roll',
+        'roll_categ'
     ]
 )
 tmp_test_list = []
@@ -288,15 +302,18 @@ while True:
 
             yaw,pitch,roll = np.mean(np.vstack((res1,res2)),axis=0)
 
-        # cv2.putText(frame, f'YAW: {str(round(yaw, 2))}', (90, 1600), cv2.FONT_HERSHEY_DUPLEX, 1.5, (100, 50, 150), 3)
-        # cv2.putText(frame, f'PITCH: {str(round(pitch, 2))}', (90, 1650), cv2.FONT_HERSHEY_DUPLEX, 1.5, (100, 50, 150), 3)
-        # cv2.putText(frame, f'ROLL: {str(round(roll, 2))}', (90, 1700), cv2.FONT_HERSHEY_DUPLEX, 1.5, (100, 50, 150), 3)
 
-            cv2.putText(frame, f'YAW: {str(round(yaw, 2))}', (x1, y2+50), cv2.FONT_HERSHEY_DUPLEX, 1.5, (100, 50, 150), 3)
-            cv2.putText(frame, f'PITCH: {str(round(pitch, 2))}', (x1, y2+100), cv2.FONT_HERSHEY_DUPLEX, 1.5, (100, 50, 150), 3)
-            cv2.putText(frame, f'ROLL: {str(round(roll, 2))}', (x1, y2+150), cv2.FONT_HERSHEY_DUPLEX, 1.5, (100, 50, 150), 3)
+            # cv2.putText(frame, f'YAW: {str(round(yaw, 2))}', (x1, y2+50), cv2.FONT_HERSHEY_DUPLEX, 1.5, (100, 50, 150), 3)
+            # cv2.putText(frame, f'PITCH: {str(round(pitch, 2))}', (x1, y2+100), cv2.FONT_HERSHEY_DUPLEX, 1.5, (100, 50, 150), 3)
+            # cv2.putText(frame, f'ROLL: {str(round(roll, 2))}', (x1, y2+150), cv2.FONT_HERSHEY_DUPLEX, 1.5, (100, 50, 150), 3)
 
+            yaw_categ_ = HEAD_COMPENSATION_MAP(yaw)
+            pitch_categ_ = HEAD_COMPENSATION_MAP(pitch)
+            roll_categ_ = HEAD_COMPENSATION_MAP(roll)
 
+            cv2.putText(frame, f'YAW: {yaw_categ_}', (x1, y2+50), cv2.FONT_HERSHEY_DUPLEX, 1.5, (100, 50, 150), 3)
+            cv2.putText(frame, f'PITCH: {pitch_categ_}', (x1, y2+100), cv2.FONT_HERSHEY_DUPLEX, 1.5, (100, 50, 150), 3)
+            cv2.putText(frame, f'ROLL: {roll_categ_}', (x1, y2+150), cv2.FONT_HERSHEY_DUPLEX, 1.5, (100, 50, 150), 3)
 
             frame = draw_axis(frame,yaw,pitch,roll,tdx=(x2-x1)//2+x1,tdy=(y2-y1)//2+y1,size=50)
 
@@ -319,11 +336,14 @@ while True:
                 gaze_direction=text,
                 blink_freq=bf,
                 blink_duration=blink_duration,
-                left_pupil=left_pupil,
-                right_pupil=right_pupil,
+                left_pupil=str(left_pupil),
+                right_pupil=str(right_pupil),
                 yaw=str(round(yaw, 2)),
+                yaw_categ=yaw_categ_,
                 pitch=str(round(pitch, 2)),
-                roll=str(round(roll, 2))
+                pitch_categ=pitch_categ_,
+                roll=str(round(roll, 2)),
+                roll_categ=roll_categ_
             )
             tmp_test_list.append(dict(event._asdict()))
 
@@ -348,5 +368,5 @@ while True:
         break
     
 # load reuslts on db
-# db_tests.insert_multiple(tmp_test_list)
-# db_tests_meta.insert(dict(meta._asdict()))
+db_tests.insert_multiple(tmp_test_list)
+db_tests_meta.insert(dict(meta._asdict()))
